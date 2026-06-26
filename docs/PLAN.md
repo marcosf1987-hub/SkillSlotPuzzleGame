@@ -1,37 +1,3 @@
----
-name: SkillSlot Arquitectura
-overview: "Plan de arquitectura y alcance funcional para SkillSlot: app Android freemium que une tragamonedas y puzzles. Versión gratuita: partida por sesión sin guardado + ranking global con alias al game over. Versión paga: sin anuncios + guardado de progreso local. Stack: Kotlin + Jetpack Compose + Firebase Firestore (tier gratuito)."
-todos:
-  - id: setup-project
-    content: Crear proyecto Android multi-módulo (app, core, feature-slot, feature-puzzle, feature-leaderboard, puzzle-engine, puzzles/*)
-    status: pending
-  - id: core-domain
-    content: Definir GameState, ProgressionConfig, IPuzzle/PuzzleSession, PlayerMode (free/premium) y persistencia condicional
-    status: pending
-  - id: leaderboard
-    content: Integrar ranking global con Firebase Firestore (alias, sessionScore) y pantalla de mejores jugadores
-    status: pending
-  - id: slot-feature
-    content: Implementar tragamonedas Compose con payout table JSON y acumulación de puntos
-    status: pending
-  - id: puzzle-shell
-    content: Construir shell común de puzzle (timer, vidas, victoria/derrota, navegación)
-    status: pending
-  - id: monetization
-    content: Integrar AdMob (banner, interstitial, rewarded) y Play Billing skillslot_premium (sin ads + guardado)
-    status: pending
-  - id: puzzle-catalog
-    content: Implementar los 10 puzzles con escalado de dificultad por tier (1 puzzle por iteración)
-    status: pending
-  - id: progression-ui
-    content: Mapa de progresión, tiers 1-10 y balanceo de umbrales/payouts
-    status: pending
-  - id: visual-theme
-    content: Aplicar identidad visual premium (púrpura eléctrico + oro) cuando el usuario adjunte assets
-    status: pending
-isProject: false
----
-
 # SkillSlot — Arquitectura y alcance funcional
 
 ## Recomendación tecnológica (menor costo)
