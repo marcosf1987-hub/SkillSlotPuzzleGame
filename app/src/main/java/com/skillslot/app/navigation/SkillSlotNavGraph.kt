@@ -32,10 +32,14 @@ import androidx.navigation.compose.rememberNavController
 import com.skillslot.app.bootstrap.BootstrapViewModel
 import com.skillslot.app.session.GameSessionEvent
 import com.skillslot.app.session.GameSessionViewModel
+import com.skillslot.app.ui.ads.AdBanner
 import com.skillslot.app.ui.components.LobbyTab
 import com.skillslot.app.ui.components.SkillSlotBottomBar
 import com.skillslot.app.ui.components.SkillSlotButton
 import com.skillslot.app.ui.lobby.LobbyScreen
+import com.skillslot.app.ui.premium.PremiumScreen
+import com.skillslot.app.ui.premium.PremiumViewModel
+import com.skillslot.app.ui.settings.SettingsScreen
 import com.skillslot.app.ui.theme.Background
 import com.skillslot.app.ui.theme.Primary
 import com.skillslot.app.ui.theme.Secondary
@@ -71,6 +75,10 @@ fun SkillSlotNavHost(
                     navController.navigate(SkillSlotRoutes.GAME_OVER) {
                         launchSingleTop = true
                     }
+                GameSessionEvent.ShowInterstitial ->
+                    sessionViewModel.showPendingInterstitial()
+                GameSessionEvent.ShowRewarded ->
+                    sessionViewModel.showPendingRewarded()
             }
         }
     }
@@ -100,6 +108,7 @@ fun SkillSlotNavHost(
                 },
                 onVaultClick = { navController.navigate(SkillSlotRoutes.PROGRESSION) },
                 onLobbyTablesClick = { },
+                onSettingsClick = { navController.navigate(SkillSlotRoutes.SETTINGS) },
             )
         }
         composable(SkillSlotRoutes.SLOT) {
@@ -108,9 +117,11 @@ fun SkillSlotNavHost(
             val isSpinning by sessionViewModel.isSpinning.collectAsState()
             val showUnlock by sessionViewModel.showUnlockDialog.collectAsState()
             val returnMessage by sessionViewModel.slotReturnMessage.collectAsState()
+            val showAds by sessionViewModel.showAds.collectAsState()
             TabbedShell(
                 selectedTab = LobbyTab.WORD_SLOTS,
                 onTabSelected = { navigateToTab(navController, it) },
+                showBanner = showAds,
             ) {
                 SlotScreen(
                     gameState = gameState,
@@ -128,6 +139,7 @@ fun SkillSlotNavHost(
         composable(SkillSlotRoutes.PUZZLE) {
             val gameState by sessionViewModel.gameState.collectAsState()
             val puzzleSession by sessionViewModel.puzzleSession.collectAsState()
+            val showAds by sessionViewModel.showAds.collectAsState()
             LaunchedEffect(Unit) {
                 sessionViewModel.tryOpenPuzzleSession()
             }
@@ -139,16 +151,22 @@ fun SkillSlotNavHost(
                     gameState = gameState,
                     puzzleSession = puzzleSession,
                     puzzleType = gameState.currentPuzzleType,
+                    showAds = showAds,
+                    onBeforeVictory = sessionViewModel::onBeforeVictory,
+                    onBeforeDefeat = sessionViewModel::onBeforeDefeat,
                     onPuzzleCompleted = sessionViewModel::onPuzzleCompleted,
                     onPuzzleFailed = sessionViewModel::onPuzzleFailed,
+                    onWatchRewarded = sessionViewModel::onWatchRewardedForLife,
                 )
             }
         }
         composable(SkillSlotRoutes.PROGRESSION) {
             val gameState by sessionViewModel.gameState.collectAsState()
+            val showAds by sessionViewModel.showAds.collectAsState()
             TabbedShell(
                 selectedTab = LobbyTab.VAULT,
                 onTabSelected = { navigateToTab(navController, it) },
+                showBanner = showAds,
             ) {
                 ProgressionMapScreen(gameState = gameState)
             }
@@ -163,6 +181,7 @@ fun SkillSlotNavHost(
         }
         composable(SkillSlotRoutes.GAME_OVER) {
             val gameState by sessionViewModel.gameState.collectAsState()
+            val isPremium by sessionViewModel.isPremium.collectAsState()
             ShellRoute(
                 title = "Game Over",
                 onBack = { navController.popBackStack() },
@@ -174,6 +193,12 @@ fun SkillSlotNavHost(
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     GameOverScreen(gameState = gameState)
+                    if (!isPremium) {
+                        SkillSlotButton(
+                            text = "Hazte Premium — guarda tu progreso",
+                            onClick = { navController.navigate(SkillSlotRoutes.PREMIUM) },
+                        )
+                    }
                     SkillSlotButton(
                         text = "Nueva partida",
                         onClick = {
@@ -187,13 +212,15 @@ fun SkillSlotNavHost(
             }
         }
         composable(SkillSlotRoutes.SETTINGS) {
+            val premiumViewModel: PremiumViewModel = hiltViewModel()
             ShellRoute(
                 title = "Ajustes",
                 onBack = { navController.popBackStack() },
             ) {
-                PlaceholderScreen(
-                    title = "Ajustes",
-                    subtitle = "Sonido, alias, restaurar compras (Fase 3)",
+                SettingsScreen(
+                    onBack = { navController.popBackStack() },
+                    onOpenPremium = { navController.navigate(SkillSlotRoutes.PREMIUM) },
+                    onRestorePurchases = premiumViewModel::restore,
                 )
             }
         }
@@ -202,10 +229,7 @@ fun SkillSlotNavHost(
                 title = "Premium",
                 onBack = { navController.popBackStack() },
             ) {
-                PlaceholderScreen(
-                    title = "SkillSlot Premium",
-                    subtitle = "Sin anuncios + guardar progreso (Fase 3)",
-                )
+                PremiumScreen(onBack = { navController.popBackStack() })
             }
         }
     }
@@ -229,15 +253,21 @@ private fun navigateToTab(navController: NavHostController, tab: LobbyTab) {
 private fun TabbedShell(
     selectedTab: LobbyTab,
     onTabSelected: (LobbyTab) -> Unit,
+    showBanner: Boolean = false,
     content: @Composable () -> Unit,
 ) {
     Scaffold(
         containerColor = Background,
         bottomBar = {
-            SkillSlotBottomBar(
-                selectedTab = selectedTab,
-                onTabSelected = onTabSelected,
-            )
+            Column {
+                if (showBanner) {
+                    AdBanner(modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp))
+                }
+                SkillSlotBottomBar(
+                    selectedTab = selectedTab,
+                    onTabSelected = onTabSelected,
+                )
+            }
         },
     ) { padding ->
         Box(modifier = Modifier.padding(padding)) {
@@ -250,8 +280,8 @@ private fun TabbedShell(
 private fun SplashRoute(onReady: () -> Unit) {
     val viewModel: BootstrapViewModel = hiltViewModel()
     val ready by viewModel.ready.collectAsState()
-    if (ready) {
-        onReady()
+    LaunchedEffect(ready) {
+        if (ready) onReady()
     }
     Box(
         modifier = Modifier
@@ -300,25 +330,5 @@ private fun ShellRoute(
         Box(modifier = Modifier.padding(padding)) {
             content()
         }
-    }
-}
-
-@Composable
-private fun PlaceholderScreen(
-    title: String,
-    subtitle: String,
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        Text(title, style = SkillSlotTextStyles.headlineMd)
-        Text(
-            subtitle,
-            style = SkillSlotTextStyles.bodySm,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
     }
 }

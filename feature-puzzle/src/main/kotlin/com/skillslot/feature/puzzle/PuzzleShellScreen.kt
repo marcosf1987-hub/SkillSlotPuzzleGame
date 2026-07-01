@@ -31,17 +31,26 @@ fun PuzzleShellScreen(
     gameState: GameState,
     puzzleSession: PuzzleSession?,
     puzzleType: PuzzleType?,
+    showAds: Boolean,
+    onBeforeVictory: (onReady: () -> Unit) -> Unit,
+    onBeforeDefeat: (onReady: () -> Unit) -> Unit,
     onPuzzleCompleted: () -> Unit,
     onPuzzleFailed: () -> Unit,
+    onWatchRewarded: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val timeLimit = ProgressionConfig.puzzleTimeLimitSeconds(gameState.currentTier)
     var remainingSeconds by remember(puzzleSession) { mutableIntStateOf(timeLimit) }
     var phase by remember(puzzleSession) { mutableStateOf<PuzzleShellPhase>(PuzzleShellPhase.Playing) }
+    var victoryVisible by remember(puzzleSession) { mutableStateOf(false) }
+    var defeatVisible by remember(puzzleSession) { mutableStateOf(false) }
+    var defeatReason by remember(puzzleSession) { mutableStateOf("") }
 
     LaunchedEffect(puzzleSession) {
         remainingSeconds = timeLimit
         phase = PuzzleShellPhase.Playing
+        victoryVisible = false
+        defeatVisible = false
     }
 
     LaunchedEffect(phase, puzzleSession) {
@@ -56,6 +65,17 @@ fun PuzzleShellScreen(
         }
     }
 
+    LaunchedEffect(phase) {
+        when (val current = phase) {
+            PuzzleShellPhase.Victory -> onBeforeVictory { victoryVisible = true }
+            is PuzzleShellPhase.Defeat -> {
+                defeatReason = current.reason
+                onBeforeDefeat { defeatVisible = true }
+            }
+            else -> Unit
+        }
+    }
+
     LaunchedEffect(puzzleSession) {
         puzzleSession?.result?.collect { result ->
             when (result) {
@@ -66,7 +86,6 @@ fun PuzzleShellScreen(
     }
 
     val isPlaying = phase == PuzzleShellPhase.Playing
-    val defeatReason = (phase as? PuzzleShellPhase.Defeat)?.reason
 
     if (phase == PuzzleShellPhase.Paused) {
         PauseDialog(
@@ -104,6 +123,69 @@ fun PuzzleShellScreen(
                         modifier = Modifier.weight(1f),
                     )
                 }
+                puzzleSession != null && puzzleType == PuzzleType.SUDOKU -> {
+                    com.skillslot.puzzles.sudoku.SudokuPuzzleContent(
+                        session = puzzleSession,
+                        interactionEnabled = isPlaying,
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+                puzzleSession != null && puzzleType == PuzzleType.BALL_SORT -> {
+                    com.skillslot.puzzles.ballsort.BallSortPuzzleContent(
+                        session = puzzleSession,
+                        interactionEnabled = isPlaying,
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+                puzzleSession != null && puzzleType == PuzzleType.MAZE -> {
+                    com.skillslot.puzzles.maze.MazePuzzleContent(
+                        session = puzzleSession,
+                        interactionEnabled = isPlaying,
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+                puzzleSession != null && puzzleType == PuzzleType.BOGGLE -> {
+                    com.skillslot.puzzles.boggle.BogglePuzzleContent(
+                        session = puzzleSession,
+                        interactionEnabled = isPlaying,
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+                puzzleSession != null && puzzleType == PuzzleType.MEMORY -> {
+                    com.skillslot.puzzles.memory.MemoryPuzzleContent(
+                        session = puzzleSession,
+                        interactionEnabled = isPlaying,
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+                puzzleSession != null && puzzleType == PuzzleType.NONOGRAM -> {
+                    com.skillslot.puzzles.nonogram.NonogramPuzzleContent(
+                        session = puzzleSession,
+                        interactionEnabled = isPlaying,
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+                puzzleSession != null && puzzleType == PuzzleType.SLIDING -> {
+                    com.skillslot.puzzles.sliding.SlidingPuzzleContent(
+                        session = puzzleSession,
+                        interactionEnabled = isPlaying,
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+                puzzleSession != null && puzzleType == PuzzleType.CONNECT -> {
+                    com.skillslot.puzzles.connect.ConnectPuzzleContent(
+                        session = puzzleSession,
+                        interactionEnabled = isPlaying,
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+                puzzleSession != null && puzzleType == PuzzleType.SEQUENCE -> {
+                    com.skillslot.puzzles.sequence.SequencePuzzleContent(
+                        session = puzzleSession,
+                        interactionEnabled = isPlaying,
+                        modifier = Modifier.weight(1f),
+                    )
+                }
                 puzzleType != null -> {
                     Text(
                         text = "${puzzleType.displayName} — próximamente",
@@ -122,20 +204,18 @@ fun PuzzleShellScreen(
         }
 
         PuzzleVictoryOverlay(
-            visible = phase == PuzzleShellPhase.Victory,
+            visible = victoryVisible,
             gameState = gameState,
             puzzleType = puzzleType,
             onContinue = onPuzzleCompleted,
         )
 
         PuzzleDefeatOverlay(
-            visible = phase is PuzzleShellPhase.Defeat,
-            reason = defeatReason ?: "",
-            livesRemaining = if (phase is PuzzleShellPhase.Defeat) {
-                (gameState.lives - 1).coerceAtLeast(0)
-            } else {
-                gameState.lives
-            },
+            visible = defeatVisible,
+            reason = defeatReason,
+            livesRemaining = (gameState.lives - 1).coerceAtLeast(0),
+            showRewardedOption = showAds && gameState.lives <= 1,
+            onWatchRewarded = onWatchRewarded,
             onContinue = onPuzzleFailed,
         )
     }

@@ -51,6 +51,7 @@ private class WordSearchSession(
             PuzzleAction.ConfirmSelection -> confirmSelection()
             is PuzzleAction.SelectCell -> onSelectCell(action.row, action.col)
             is PuzzleAction.DragToCell -> onDragToCell(action.row, action.col)
+            else -> Unit
         }
     }
 

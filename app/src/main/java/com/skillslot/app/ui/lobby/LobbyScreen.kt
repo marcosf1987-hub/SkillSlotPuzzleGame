@@ -67,13 +67,17 @@ fun LobbyScreen(
     onSudokuClick: () -> Unit,
     onVaultClick: () -> Unit,
     onLobbyTablesClick: () -> Unit,
+    onSettingsClick: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     Scaffold(
         modifier = modifier.fillMaxSize(),
         containerColor = Background,
         topBar = {
-            LobbyTopBar(credits = gameState.slotPoints)
+            LobbyTopBar(
+                credits = gameState.slotPoints,
+                onSettingsClick = onSettingsClick,
+            )
         },
         bottomBar = {
             SkillSlotBottomBar(
@@ -114,6 +118,7 @@ fun LobbyScreen(
 @Composable
 private fun LobbyTopBar(
     credits: Int,
+    onSettingsClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Row(
@@ -151,8 +156,8 @@ private fun LobbyTopBar(
             horizontalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             CreditsChip(credits = credits)
-            ProfileAvatar {
-                Icon(Icons.Default.Person, contentDescription = "Perfil", tint = com.skillslot.app.ui.theme.Tertiary)
+            ProfileAvatar(onClick = onSettingsClick) {
+                Icon(Icons.Default.Person, contentDescription = "Ajustes", tint = com.skillslot.app.ui.theme.Tertiary)
             }
         }
     }

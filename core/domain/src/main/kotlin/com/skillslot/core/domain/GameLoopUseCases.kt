@@ -65,3 +65,16 @@ class FailPuzzleUseCase {
         )
     }
 }
+
+class RecoverLifeUseCase {
+    operator fun invoke(state: GameState): GameState? {
+        if (!state.isSessionActive && state.lives <= 0) {
+            return state.copy(lives = 1, isSessionActive = true)
+        }
+        if (state.lives >= state.maxLives) return null
+        return state.copy(
+            lives = state.lives + 1,
+            isSessionActive = true,
+        )
+    }
+}

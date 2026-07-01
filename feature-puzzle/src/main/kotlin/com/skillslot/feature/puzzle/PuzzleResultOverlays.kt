@@ -52,6 +52,8 @@ internal fun PuzzleDefeatOverlay(
     visible: Boolean,
     reason: String,
     livesRemaining: Int,
+    showRewardedOption: Boolean,
+    onWatchRewarded: () -> Unit,
     onContinue: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -70,6 +72,8 @@ internal fun PuzzleDefeatOverlay(
         },
         accent = MaterialTheme.colorScheme.error,
         buttonText = if (livesRemaining > 0) "Volver a tragamonedas" else "Ver Game Over",
+        secondaryButtonText = if (showRewardedOption) "Ver video (+1 vida)" else null,
+        onSecondaryAction = onWatchRewarded,
         onAction = onContinue,
     )
 }
@@ -82,6 +86,8 @@ private fun ResultOverlay(
     accent: androidx.compose.ui.graphics.Color,
     buttonText: String,
     onAction: () -> Unit,
+    secondaryButtonText: String? = null,
+    onSecondaryAction: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     AnimatedVisibility(
@@ -120,6 +126,15 @@ private fun ResultOverlay(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center,
                 )
+                if (secondaryButtonText != null) {
+                    Button(
+                        onClick = onSecondaryAction,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                    ) {
+                        Text(secondaryButtonText)
+                    }
+                }
                 Button(
                     onClick = onAction,
                     modifier = Modifier.fillMaxWidth(),

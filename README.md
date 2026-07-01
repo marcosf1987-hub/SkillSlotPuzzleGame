@@ -47,18 +47,25 @@ SkillSlotPuzzleGame/
 ├── feature-progression/     # Mapa de progresión
 ├── feature-leaderboard/     # Ranking y game over
 ├── puzzle-engine/         # IPuzzle, PuzzleRegistry
-└── puzzles/               # 10 módulos de puzzle (stubs en Fase 0)
+└── puzzles/               # 10 módulos de puzzle (todos jugables)
 ```
 
-## Estado actual — Fase 2
+## Estado actual — Fase 5
 
-- **Shell de puzzle**: timer por tier, indicador de vidas, botón pausa
-- **Pausa / abandonar**: diálogo con reanudar o perder 1 vida
-- **Victoria / derrota**: overlays animados antes de volver a slots
-- **Transiciones**: banner al regresar a tragamonedas tras puzzle
-- Tragamonedas, sopa de letras y core loop (Fase 1)
+- **10 puzzles jugables** — catálogo completo según `PuzzleType.defaultQueue`
+- **Nuevos en esta fase:** Memory, Nonogram, Sliding, Conectar puntos, Secuencia luminosa (Simon)
+- Cada puzzle escala con el **tier**; generación procedural con `seed`
+- Monetización, shell con timer/vidas y core loop (fases anteriores)
 
-Consulta el [plan completo](docs/PLAN.md) — siguiente: **Fase 3** (monetización).
+| # | Puzzle | Mecánica |
+|---|--------|----------|
+| 6 | Memory | Voltear parejas de cartas |
+| 7 | Nonogram | Rellenar según pistas numéricas |
+| 8 | Sliding | Ordenar piezas 3×3 / 4×4 |
+| 9 | Conectar | Unir pares de números sin cruzar |
+| 10 | Secuencia | Repetir patrón tipo Simon |
+
+Consulta el [plan completo](docs/PLAN.md) — siguiente: **Fase 6** (progresión completa, 10 tiers, balanceo).
 
 ## Licencia
 

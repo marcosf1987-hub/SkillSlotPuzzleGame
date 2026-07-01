@@ -5,6 +5,7 @@ import com.skillslot.core.data.repository.UserPreferencesAdapter
 import com.skillslot.core.domain.CompletePuzzleUseCase
 import com.skillslot.core.domain.EnterPuzzleUseCase
 import com.skillslot.core.domain.FailPuzzleUseCase
+import com.skillslot.core.domain.RecoverLifeUseCase
 import com.skillslot.core.domain.GameStateRepositoryContract
 import com.skillslot.core.domain.LoadGameStateUseCase
 import com.skillslot.core.domain.SaveProgressUseCase
@@ -75,4 +76,7 @@ object DomainModule {
 
     @Provides
     fun provideFailPuzzleUseCase(): FailPuzzleUseCase = FailPuzzleUseCase()
+
+    @Provides
+    fun provideRecoverLifeUseCase(): RecoverLifeUseCase = RecoverLifeUseCase()
 }

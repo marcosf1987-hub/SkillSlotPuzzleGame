@@ -392,11 +392,19 @@ fun VipStatusCard(
 @Composable
 fun ProfileAvatar(
     modifier: Modifier = Modifier,
+    onClick: (() -> Unit)? = null,
     icon: @Composable () -> Unit,
 ) {
     Box(
         modifier = modifier
             .size(40.dp)
+            .then(
+                if (onClick != null) {
+                    Modifier.clickable(onClick = onClick)
+                } else {
+                    Modifier
+                },
+            )
             .clip(CircleShape)
             .background(TertiaryContainer.copy(alpha = 0.2f))
             .border(2.dp, Tertiary, CircleShape),
