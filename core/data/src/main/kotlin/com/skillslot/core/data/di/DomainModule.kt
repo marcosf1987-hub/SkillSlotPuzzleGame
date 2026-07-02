@@ -14,6 +14,10 @@ import com.skillslot.core.domain.SlotEngine
 import com.skillslot.core.domain.SpinSlotUseCase
 import com.skillslot.core.domain.StartNewSessionUseCase
 import com.skillslot.core.domain.UserPreferencesContract
+import com.skillslot.core.data.repository.LeaderboardRepositoryAdapter
+import com.skillslot.core.domain.GetLeaderboardUseCase
+import com.skillslot.core.domain.LeaderboardRepositoryContract
+import com.skillslot.core.domain.SubmitLeaderboardScoreUseCase
 import com.skillslot.core.model.GameState
 import dagger.Module
 import dagger.Provides
@@ -69,7 +73,23 @@ object DomainModule {
     fun provideSpinSlotUseCase(engine: SlotEngine): SpinSlotUseCase = SpinSlotUseCase(engine)
 
     @Provides
-    fun provideEnterPuzzleUseCase(): EnterPuzzleUseCase = EnterPuzzleUseCase(consumePointsOnStart = true)
+    fun provideEnterPuzzleUseCase(): EnterPuzzleUseCase = EnterPuzzleUseCase()
+
+    @Provides
+    @Singleton
+    fun provideLeaderboardRepositoryContract(
+        adapter: LeaderboardRepositoryAdapter,
+    ): LeaderboardRepositoryContract = adapter
+
+    @Provides
+    fun provideSubmitLeaderboardScoreUseCase(
+        repository: LeaderboardRepositoryContract,
+    ): SubmitLeaderboardScoreUseCase = SubmitLeaderboardScoreUseCase(repository)
+
+    @Provides
+    fun provideGetLeaderboardUseCase(
+        repository: LeaderboardRepositoryContract,
+    ): GetLeaderboardUseCase = GetLeaderboardUseCase(repository)
 
     @Provides
     fun provideCompletePuzzleUseCase(): CompletePuzzleUseCase = CompletePuzzleUseCase()

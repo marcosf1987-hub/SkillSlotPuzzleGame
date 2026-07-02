@@ -1,5 +1,6 @@
 package com.skillslot.core.domain
 
+import com.skillslot.core.model.ProgressionConfig
 import com.skillslot.core.model.SlotSpinResult
 import com.skillslot.core.model.SlotSymbol
 import kotlin.random.Random
@@ -12,9 +13,10 @@ class SlotEngine(
             List(GRID_SIZE) { randomWeightedSymbol() }
         }
         val lineWins = evaluatePaylines(grid)
+        val settings = ProgressionConfig.settings
         val points = when {
             lineWins.isNotEmpty() -> lineWins.maxOf { it.points }
-            else -> random.nextInt(CONSOLATION_MIN, CONSOLATION_MAX + 1)
+            else -> random.nextInt(settings.consolationMin, settings.consolationMax + 1)
         }
         val label = lineWins.maxByOrNull { it.points }?.label
         return SlotSpinResult(grid = grid, pointsAwarded = points, winLabel = label)
@@ -40,7 +42,7 @@ class SlotEngine(
         val counts = symbols.groupingBy { it }.eachCount()
         val bestPair = counts.filter { it.value >= 2 }.maxByOrNull { it.key.triplePayout / 3 }
         if (bestPair != null) {
-            return LineWin(50, "Par ${bestPair.key.display}")
+            return LineWin(ProgressionConfig.settings.pairPayout, "Par ${bestPair.key.display}")
         }
         return null
     }
@@ -57,7 +59,5 @@ class SlotEngine(
 
     companion object {
         const val GRID_SIZE = 3
-        private const val CONSOLATION_MIN = 10
-        private const val CONSOLATION_MAX = 30
     }
 }

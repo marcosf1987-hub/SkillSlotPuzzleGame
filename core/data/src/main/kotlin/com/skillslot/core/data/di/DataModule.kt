@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import com.skillslot.core.data.local.SkillSlotDatabase
 import com.skillslot.core.data.local.dao.GameStateDao
+import com.skillslot.core.data.local.dao.LeaderboardDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -21,9 +22,13 @@ object DataModule {
             context,
             SkillSlotDatabase::class.java,
             "skillslot.db",
-        ).build()
+        ).fallbackToDestructiveMigration().build()
 
     @Provides
     fun provideGameStateDao(database: SkillSlotDatabase): GameStateDao =
         database.gameStateDao()
+
+    @Provides
+    fun provideLeaderboardDao(database: SkillSlotDatabase): LeaderboardDao =
+        database.leaderboardDao()
 }

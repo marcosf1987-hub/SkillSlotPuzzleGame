@@ -66,6 +66,7 @@ fun LobbyScreen(
     onWordSlotsClick: () -> Unit,
     onSudokuClick: () -> Unit,
     onVaultClick: () -> Unit,
+    onRankingClick: () -> Unit = {},
     onLobbyTablesClick: () -> Unit,
     onSettingsClick: () -> Unit = {},
     modifier: Modifier = Modifier,
@@ -109,6 +110,7 @@ fun LobbyScreen(
                 onSudokuClick = onSudokuClick,
                 onLobbyTablesClick = onLobbyTablesClick,
                 onVaultClick = onVaultClick,
+                onRankingClick = onRankingClick,
             )
             Spacer(modifier = Modifier.height(96.dp))
         }
@@ -169,6 +171,7 @@ private fun FeaturedFloorSection(
     onSudokuClick: () -> Unit,
     onLobbyTablesClick: () -> Unit,
     onVaultClick: () -> Unit,
+    onRankingClick: () -> Unit,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(SkillSlotSpacing.gridGutter * 2)) {
         Row(
@@ -205,6 +208,7 @@ private fun FeaturedFloorSection(
         OtherTablesSection(
             onLobbyTablesClick = onLobbyTablesClick,
             onVaultClick = onVaultClick,
+            onRankingClick = onRankingClick,
         )
     }
 }
@@ -213,6 +217,7 @@ private fun FeaturedFloorSection(
 private fun OtherTablesSection(
     onLobbyTablesClick: () -> Unit,
     onVaultClick: () -> Unit,
+    onRankingClick: () -> Unit,
 ) {
     Column {
         Row(
@@ -259,6 +264,19 @@ private fun OtherTablesSection(
                         imageVector = Icons.Default.EmojiEvents,
                         contentDescription = null,
                         tint = Primary,
+                        modifier = Modifier.height(32.dp),
+                    )
+                },
+            )
+            OtherTableTile(
+                label = "Ranking",
+                tint = Secondary,
+                onClick = onRankingClick,
+                icon = {
+                    Icon(
+                        imageVector = Icons.Default.EmojiEvents,
+                        contentDescription = null,
+                        tint = Secondary,
                         modifier = Modifier.height(32.dp),
                     )
                 },

@@ -37,6 +37,7 @@ En Windows:
 ```
 SkillSlotPuzzleGame/
 ├── docs/PLAN.md           # Plan de arquitectura y roadmap
+├── docs/PLAY_STORE.md     # Checklist publicación Play Store
 ├── app/                   # Application, navegación, tema, DI
 ├── core/
 │   ├── model/             # GameState, PuzzleType, ProgressionConfig
@@ -50,22 +51,14 @@ SkillSlotPuzzleGame/
 └── puzzles/               # 10 módulos de puzzle (todos jugables)
 ```
 
-## Estado actual — Fase 5
+## Estado actual — Fase 7
 
-- **10 puzzles jugables** — catálogo completo según `PuzzleType.defaultQueue`
-- **Nuevos en esta fase:** Memory, Nonogram, Sliding, Conectar puntos, Secuencia luminosa (Simon)
-- Cada puzzle escala con el **tier**; generación procedural con `seed`
-- Monetización, shell con timer/vidas y core loop (fases anteriores)
+- **Progresión completa (Fase 6):** 10 tiers, balanceo vía `progression_config.json`, mapa visual en The Vault, rotación de cola al subir tier
+- **Ranking local (Fase 3b):** publicar alias en Game Over, top 100 en Room
+- **Pulido (Fase 7):** tutorial primera vez, toggles sonido/vibración, estadísticas locales, guía Play Store
+- 10 puzzles jugables, monetización y core loop (fases anteriores)
 
-| # | Puzzle | Mecánica |
-|---|--------|----------|
-| 6 | Memory | Voltear parejas de cartas |
-| 7 | Nonogram | Rellenar según pistas numéricas |
-| 8 | Sliding | Ordenar piezas 3×3 / 4×4 |
-| 9 | Conectar | Unir pares de números sin cruzar |
-| 10 | Secuencia | Repetir patrón tipo Simon |
-
-Consulta el [plan completo](docs/PLAN.md) — siguiente: **Fase 6** (progresión completa, 10 tiers, balanceo).
+Consulta el [plan completo](docs/PLAN.md) y la [guía Play Store](docs/PLAY_STORE.md).
 
 ## Licencia
 

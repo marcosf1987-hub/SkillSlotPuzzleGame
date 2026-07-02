@@ -2,6 +2,7 @@ package com.skillslot.app.session
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.skillslot.core.data.preferences.UserPreferencesRepository
 import com.skillslot.core.domain.AdsManagerContract
 import com.skillslot.core.domain.CompletePuzzleUseCase
 import com.skillslot.core.domain.EnterPuzzleUseCase
@@ -53,6 +54,7 @@ class GameSessionViewModel @Inject constructor(
     private val puzzleRegistry: PuzzleRegistry,
     private val premiumManager: PremiumManagerContract,
     private val adsManager: AdsManagerContract,
+    private val userPreferencesRepository: UserPreferencesRepository,
 ) : ViewModel() {
     val gameState: StateFlow<GameState> = sessionStateHolder.state
 
@@ -109,6 +111,7 @@ class GameSessionViewModel @Inject constructor(
                 _showUnlockDialog.value = true
             }
             persist(outcome.newState)
+            userPreferencesRepository.incrementSpins()
             if (!outcome.newState.isSessionActive) {
                 _events.tryEmit(GameSessionEvent.NavigateToGameOver)
             }
@@ -148,10 +151,18 @@ class GameSessionViewModel @Inject constructor(
     }
 
     fun onPuzzleCompleted() {
-        val updated = completePuzzleUseCase(sessionStateHolder.state.value)
+        val before = sessionStateHolder.state.value
+        val updated = completePuzzleUseCase(before)
+        val tierUp = updated.currentTier > before.currentTier
         sessionStateHolder.replace(updated)
         _puzzleSession.value = null
-        _slotReturnMessage.value = "¡Puzzle completado! Sigue acumulando puntos."
+        _slotReturnMessage.value = when {
+            tierUp -> "¡Subiste al tier ${updated.currentTier}! Nuevo umbral: ${updated.pointsThreshold} pts"
+            else -> "¡Puzzle completado! Sigue acumulando puntos."
+        }
+        viewModelScope.launch {
+            userPreferencesRepository.incrementPuzzlesCompleted()
+        }
         persist(updated)
         _events.tryEmit(GameSessionEvent.NavigateToSlots)
     }

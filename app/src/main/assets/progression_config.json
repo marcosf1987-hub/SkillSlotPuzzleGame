@@ -2,5 +2,8 @@
   "baseThreshold": 500,
   "growthFactor": 0.5,
   "maxLives": 3,
-  "consumePointsOnPuzzleStart": true
+  "consumePointsOnPuzzleStart": true,
+  "pairPayout": 50,
+  "consolationMin": 12,
+  "consolationMax": 28
 }

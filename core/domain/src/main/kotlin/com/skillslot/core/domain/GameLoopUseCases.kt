@@ -22,12 +22,10 @@ class SpinSlotUseCase(
     }
 }
 
-class EnterPuzzleUseCase(
-    private val consumePointsOnStart: Boolean = true,
-) {
+class EnterPuzzleUseCase {
     operator fun invoke(state: GameState): GameState {
         if (!state.puzzleUnlockAvailable) return state
-        val newPoints = if (consumePointsOnStart) {
+        val newPoints = if (ProgressionConfig.settings.consumePointsOnPuzzleStart) {
             (state.slotPoints - state.pointsThreshold).coerceAtLeast(0)
         } else {
             state.slotPoints
@@ -42,13 +40,19 @@ class CompletePuzzleUseCase {
         var updated = state.copy(
             completedPuzzlesInTier = state.completedPuzzlesInTier + 1,
             totalPuzzlesEverCompleted = state.totalPuzzlesEverCompleted + 1,
+            highestTierReached = maxOf(state.highestTierReached, state.currentTier),
         )
         if (updated.completedPuzzlesInTier >= ProgressionConfig.PUZZLES_PER_TIER) {
+            val completedTier = updated.currentTier
             val nextTier = (updated.currentTier + 1).coerceAtMost(ProgressionConfig.MAX_TIER)
+            val seed = updated.totalPuzzlesEverCompleted.toLong() xor completedTier.toLong()
             updated = updated.copy(
                 currentTier = nextTier,
                 completedPuzzlesInTier = 0,
                 pointsThreshold = ProgressionConfig.pointsThresholdForTier(nextTier),
+                highestTierReached = maxOf(updated.highestTierReached, nextTier),
+                tiersCompleted = updated.tiersCompleted + 1,
+                puzzleQueue = ProgressionConfig.shuffledQueueForTier(nextTier, seed),
             )
         }
         return updated

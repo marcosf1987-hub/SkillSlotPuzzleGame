@@ -39,7 +39,14 @@ import com.skillslot.app.ui.components.SkillSlotButton
 import com.skillslot.app.ui.lobby.LobbyScreen
 import com.skillslot.app.ui.premium.PremiumScreen
 import com.skillslot.app.ui.premium.PremiumViewModel
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import com.skillslot.app.ui.leaderboard.GameOverViewModel
+import com.skillslot.app.ui.leaderboard.LeaderboardViewModel
 import com.skillslot.app.ui.settings.SettingsScreen
+import com.skillslot.app.ui.settings.SettingsViewModel
+import com.skillslot.app.ui.tutorial.TutorialDialog
 import com.skillslot.app.ui.theme.Background
 import com.skillslot.app.ui.theme.Primary
 import com.skillslot.app.ui.theme.Secondary
@@ -96,6 +103,17 @@ fun SkillSlotNavHost(
         }
         composable(SkillSlotRoutes.LOBBY) {
             val gameState by sessionViewModel.gameState.collectAsState()
+            val settingsViewModel: SettingsViewModel = hiltViewModel()
+            val prefs by settingsViewModel.preferences.collectAsState()
+            var showTutorial by remember(prefs.tutorialSeen) { mutableStateOf(!prefs.tutorialSeen) }
+            if (showTutorial) {
+                TutorialDialog(
+                    onDismiss = {
+                        showTutorial = false
+                        settingsViewModel.markTutorialSeen()
+                    },
+                )
+            }
             LobbyScreen(
                 gameState = gameState,
                 selectedTab = LobbyTab.LOBBY,
@@ -107,6 +125,7 @@ fun SkillSlotNavHost(
                     navController.navigate(SkillSlotRoutes.PUZZLE)
                 },
                 onVaultClick = { navController.navigate(SkillSlotRoutes.PROGRESSION) },
+                onRankingClick = { navController.navigate(SkillSlotRoutes.LEADERBOARD) },
                 onLobbyTablesClick = { },
                 onSettingsClick = { navController.navigate(SkillSlotRoutes.SETTINGS) },
             )
@@ -172,16 +191,23 @@ fun SkillSlotNavHost(
             }
         }
         composable(SkillSlotRoutes.LEADERBOARD) {
+            val viewModel: LeaderboardViewModel = hiltViewModel()
+            val uiState by viewModel.uiState.collectAsState()
             ShellRoute(
                 title = "Ranking",
                 onBack = { navController.popBackStack() },
             ) {
-                LeaderboardScreen()
+                LeaderboardScreen(
+                    entries = uiState.entries,
+                    localPlayerId = uiState.localPlayerId,
+                )
             }
         }
         composable(SkillSlotRoutes.GAME_OVER) {
             val gameState by sessionViewModel.gameState.collectAsState()
             val isPremium by sessionViewModel.isPremium.collectAsState()
+            val gameOverViewModel: GameOverViewModel = hiltViewModel()
+            val gameOverUi by gameOverViewModel.uiState.collectAsState()
             ShellRoute(
                 title = "Game Over",
                 onBack = { navController.popBackStack() },
@@ -192,7 +218,20 @@ fun SkillSlotNavHost(
                         .padding(24.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
-                    GameOverScreen(gameState = gameState)
+                    GameOverScreen(
+                        gameState = gameState,
+                        alias = gameOverUi.alias,
+                        onAliasChange = gameOverViewModel::onAliasChange,
+                        submitMessage = gameOverUi.submitMessage,
+                        isSubmitting = gameOverUi.isSubmitting,
+                        onSubmitScore = { gameOverViewModel.submitScore(gameState) },
+                    )
+                    if (!gameOverUi.submitted) {
+                        SkillSlotButton(
+                            text = "Ver ranking",
+                            onClick = { navController.navigate(SkillSlotRoutes.LEADERBOARD) },
+                        )
+                    }
                     if (!isPremium) {
                         SkillSlotButton(
                             text = "Hazte Premium — guarda tu progreso",
@@ -221,6 +260,7 @@ fun SkillSlotNavHost(
                     onBack = { navController.popBackStack() },
                     onOpenPremium = { navController.navigate(SkillSlotRoutes.PREMIUM) },
                     onRestorePurchases = premiumViewModel::restore,
+                    onOpenRanking = { navController.navigate(SkillSlotRoutes.LEADERBOARD) },
                 )
             }
         }

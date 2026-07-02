@@ -2,6 +2,7 @@ package com.skillslot.app.bootstrap
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.skillslot.core.data.preferences.UserPreferencesRepository
 import com.skillslot.core.domain.AdsManagerContract
 import com.skillslot.core.domain.BillingManagerContract
 import com.skillslot.core.domain.LoadGameStateUseCase
@@ -21,12 +22,16 @@ class BootstrapViewModel @Inject constructor(
     private val premiumManager: PremiumManagerContract,
     private val adsManager: AdsManagerContract,
     private val billingManager: BillingManagerContract,
+    private val progressionConfigLoader: ProgressionConfigLoader,
+    private val userPreferencesRepository: UserPreferencesRepository,
 ) : ViewModel() {
     private val _ready = MutableStateFlow(false)
     val ready: StateFlow<Boolean> = _ready.asStateFlow()
 
     init {
         viewModelScope.launch {
+            progressionConfigLoader.load()
+            userPreferencesRepository.ensureLocalPlayerId()
             premiumManager.refreshPurchases()
             billingManager.initialize()
             adsManager.initialize()

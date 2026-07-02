@@ -12,6 +12,8 @@ data class SavedGameStateEntity(
     val currentTier: Int,
     val completedPuzzlesInTier: Int,
     val totalPuzzlesEverCompleted: Int,
+    val highestTierReached: Int,
+    val tiersCompleted: Int,
     val lives: Int,
     val maxLives: Int,
     val puzzleQueue: List<PuzzleType>,
