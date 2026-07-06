@@ -38,7 +38,7 @@ private class SudokuSession(
     private val _state = MutableStateFlow(
         PuzzleUiState(
             title = PuzzleType.SUDOKU.displayName,
-            subtitle = "Completa el grid 9×9",
+            subtitle = subtitleFor(selectedCell = null),
             payload = buildPayload(selectedCell = null),
         ),
     )
@@ -80,7 +80,15 @@ private class SudokuSession(
     }
 
     private fun publish(selectedCell: Pair<Int, Int>?) {
-        _state.value = _state.value.copy(payload = buildPayload(selectedCell))
+        _state.value = _state.value.copy(
+            subtitle = subtitleFor(selectedCell),
+            payload = buildPayload(selectedCell),
+        )
+    }
+
+    private fun subtitleFor(selectedCell: Pair<Int, Int>?): String = when (selectedCell) {
+        null -> "Toca una celda vacía para empezar"
+        else -> "Elige 1–9 · ⌫ borra · Los números en rojo chocan"
     }
 
     private fun buildPayload(selectedCell: Pair<Int, Int>?): PuzzleUiPayload.Sudoku =

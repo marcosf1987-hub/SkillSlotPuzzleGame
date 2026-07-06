@@ -11,7 +11,7 @@ fun TutorialDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("¡Bienvenido a SkillSlot!") },
+        title = { Text("¡Bienvenido a Jackpot Puzzles!") },
         text = {
             Text(
                 "1. Gira la tragamonedas para acumular puntos.\n" +

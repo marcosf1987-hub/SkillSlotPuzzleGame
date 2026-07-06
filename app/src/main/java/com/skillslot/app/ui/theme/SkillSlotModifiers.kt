@@ -1,13 +1,20 @@
 package com.skillslot.app.ui.theme
 
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.border
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
@@ -71,4 +78,16 @@ fun Modifier.neonGlowPurple(
 }
 
 @Composable
-fun Modifier.jackpotPulse(): Modifier = this
+fun Modifier.jackpotPulse(): Modifier {
+    val transition = rememberInfiniteTransition(label = "jackpotPulse")
+    val alpha by transition.animateFloat(
+        initialValue = 0.65f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(2000),
+            repeatMode = RepeatMode.Reverse,
+        ),
+        label = "jackpotAlpha",
+    )
+    return this.graphicsLayer { this.alpha = alpha }
+}
