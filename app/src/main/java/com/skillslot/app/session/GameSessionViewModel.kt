@@ -102,10 +102,10 @@ class GameSessionViewModel @Inject constructor(
         if (_isSpinning.value) return
         viewModelScope.launch {
             _isSpinning.value = true
-            kotlinx.coroutines.delay(960)
             val outcome = spinSlotUseCase(sessionStateHolder.state.value)
-            sessionStateHolder.replace(outcome.newState)
             _lastSpin.value = outcome.spinResult
+            kotlinx.coroutines.delay(com.skillslot.feature.slot.SLOT_SPIN_ANIMATION_MS)
+            sessionStateHolder.replace(outcome.newState)
             _isSpinning.value = false
             if (outcome.newState.puzzleUnlockAvailable) {
                 _showUnlockDialog.value = true

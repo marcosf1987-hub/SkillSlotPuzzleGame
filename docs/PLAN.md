@@ -421,6 +421,18 @@ Estimación orientativa (1 dev, tiempo parcial): fase 0–3 ~4–6 semanas; prod
 
 ---
 
+## UX tragamonedas — roadmap pendiente
+
+Fase 1 (implementada): reels escalonados, overlay de premio (+pts / winLabel), resaltado de línea ganadora, tabla de pagos colapsable, skin de marca en pantalla slot.
+
+| Fase | Entregable | Estado |
+|------|------------|--------|
+| **Slot UX 1** | Reels por columna, overlay de victoria, paytable, botón SPIN circular de marca, mega jackpot header, payline dorada, cabina estilo referencia visual | Hecho |
+| **Slot UX 2 — Retención** | “Casi puzzle” (>80% progreso), racha de sesión / mejor del día, desbloqueo de puzzle festivo (no AlertDialog), sonido + haptics en spin/win (respetando ajustes) | Pendiente |
+| **Slot UX 3 — Profundidad** | Jackpot progresivo o mega bonus visual, variantes de máquina por tier, micro-eventos (“doble pts próximos 3 spins”) | Pendiente |
+
+---
+
 ## Riesgos y mitigaciones
 
 | Riesgo | Mitigación |
